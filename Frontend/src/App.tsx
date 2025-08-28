@@ -168,19 +168,19 @@ const LandingPage = () => (
           <div className="space-y-2">
             <p className="font-semibold text-green-300">? Backend Ready</p>
             <ul className="text-left text-sm opacity-90">
-              <li>• JWT Authentication</li>
-              <li>• 3-Button Check-in API</li>
-              <li>• Real Stripe Payments</li>
-              <li>• Docker Environment</li>
+              <li>ï¿½ JWT Authentication</li>
+              <li>ï¿½ 3-Button Check-in API</li>
+              <li>ï¿½ Real Stripe Payments</li>
+              <li>ï¿½ Docker Environment</li>
             </ul>
           </div>
           <div className="space-y-2">
             <p className="font-semibold text-blue-300">? Frontend Complete</p>
             <ul className="text-left text-sm opacity-90">
-              <li>• React + TypeScript</li>
-              <li>• Zustand State Management</li>
-              <li>• 3-Button Check-in UI</li>
-              <li>• Real-time Integration</li>
+              <li>ï¿½ React + TypeScript</li>
+              <li>ï¿½ Zustand State Management</li>
+              <li>ï¿½ 3-Button Check-in UI</li>
+              <li>ï¿½ Real-time Integration</li>
             </ul>
           </div>
         </div>
