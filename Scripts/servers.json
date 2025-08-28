@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "BY Development Database",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "by_development",
+      "Username": "by_user",
+      "Password": "by_password_dev",
+      "SSLMode": "prefer",
+      "Comment": "BY Application Development Database Server"
+    }
+  }
+}

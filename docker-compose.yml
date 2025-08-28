@@ -2,99 +2,124 @@ version: '3.8'
 
 services:
   # PostgreSQL Database
-  database:
-    image: postgres:15-alpine
-    container_name: by_database
+  postgres:
+    image: postgres:16-alpine
+    container_name: by_postgres_dev
     environment:
       POSTGRES_DB: by_development
       POSTGRES_USER: by_user
       POSTGRES_PASSWORD: by_password_dev
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - "5433:5432"  # Changed from 5432 to avoid conflict
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./Scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
       - by_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U by_user -d by_development"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis Cache
+  # Redis for Caching (Optional - for future features)
   redis:
     image: redis:7-alpine
-    container_name: by_redis
+    container_name: by_redis_dev
     ports:
-      - "6379:6379"
+      - "6380:6379"  # Changed from 6379 to avoid conflict
     volumes:
       - redis_data:/data
     networks:
       - by_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # BY API Backend
+  # BY API Application
   api:
     build:
-      context: .
-      dockerfile: Backend/Dockerfile
-    container_name: by_api
+      context: ./Backend
+      dockerfile: Dockerfile
+      target: final
+    container_name: by_api_dev
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Host=database;Database=by_development;Username=by_user;Password=by_password_dev
-      - Redis__ConnectionString=redis:6379
-      - JWT__SecretKey=your-super-secret-jwt-key-for-development-minimum-32-characters-long
-      - JWT__Issuer=BY_API
-      - JWT__Audience=BY_Frontend
-      - JWT__ExpirationMinutes=15
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=by_development;Username=by_user;Password=by_password_dev"
+      JWT__SecretKey: "your-super-secret-jwt-key-for-development-minimum-32-characters-long"
+      JWT__Issuer: "BY_API"
+      JWT__Audience: "BY_Frontend"
+      JWT__ExpirationMinutes: "15"
+      Stripe__PublishableKey: "pk_test_your_stripe_publishable_key_here"
+      Stripe__SecretKey: "sk_test_your_stripe_secret_key_here"
+      Stripe__WebhookSecret: "whsec_your_webhook_secret_here"
+      Stripe__Currency: "usd"
+      Stripe__DefaultCharityName: "Test Charity"
+      Stripe__DefaultCharityId: "test_charity"
+      EnableSensitiveDataLogging: "true"
+      DOTNET_WATCH_RESTART_ON_RUDE_EDIT: "true"
     ports:
-      - "5000:80"
+      - "5186:8080"  # Changed from 5185 to avoid potential conflict
+    volumes:
+      # Mount source code for development (hot reload)
+      - ./Backend:/app/src
+      # Mount logs directory
+      - ./logs:/app/logs
+    networks:
+      - by_network
     depends_on:
-      database:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - by_network
-    volumes:
-      - ./Backend:/src
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
 
-  # pgAdmin for database management
+  # pgAdmin for Database Management
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: by_pgadmin
+    container_name: by_pgadmin_dev
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@by.local
       PGADMIN_DEFAULT_PASSWORD: admin123
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
-      - "8080:80"
+      - "8082:80"  # Changed from 8080 to avoid conflict
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+      - ./Scripts/servers.json:/pgadmin4/servers.json
     networks:
       - by_network
     depends_on:
-      - database
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
-  # Redis Commander for Redis management
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    container_name: by_redis_commander
+  # Stripe CLI for Webhook Testing (Optional)
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    container_name: by_stripe_cli_dev
     environment:
-      - REDIS_HOSTS=local:redis:6379
-    ports:
-      - "8081:8081"
+      STRIPE_API_KEY: sk_test_your_stripe_secret_key_here
+      STRIPE_DEVICE_NAME: by_dev_webhooks
+    command: listen --forward-to api:8080/api/v1/webhooks/stripe
     networks:
       - by_network
     depends_on:
-      - redis
+      - api
+    restart: unless-stopped
+    profiles: ["stripe"] # Only run when specifically requested
 
 volumes:
   postgres_data:
