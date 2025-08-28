@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:15-alpine
+    container_name: by_database
+    environment:
+      POSTGRES_DB: by_development
+      POSTGRES_USER: by_user
+      POSTGRES_PASSWORD: by_password_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - by_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U by_user -d by_development"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: by_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - by_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # BY API Backend
+  api:
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    container_name: by_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=database;Database=by_development;Username=by_user;Password=by_password_dev
+      - Redis__ConnectionString=redis:6379
+      - JWT__SecretKey=your-super-secret-jwt-key-for-development-minimum-32-characters-long
+      - JWT__Issuer=BY_API
+      - JWT__Audience=BY_Frontend
+      - JWT__ExpirationMinutes=15
+    ports:
+      - "5000:80"
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - by_network
+    volumes:
+      - ./Backend:/src
+    restart: unless-stopped
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: by_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@by.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - by_network
+    depends_on:
+      - database
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: by_redis_commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - by_network
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  by_network:
+    driver: bridge
