@@ -14,6 +14,17 @@ public interface IUserService
     Task<ApiResponse<bool>> ResetPasswordAsync(string token, string newPassword);
 }
 
+public interface ICheckInService
+{
+    Task<ApiResponse<CheckInResponse>> CreateCheckInAsync(Guid userId, ThreeButtonCheckInRequest request);
+    Task<ApiResponse<CheckInResponse>> UpdateCheckInAsync(Guid userId, Guid checkInId, UpdateCheckInRequest request);
+    Task<ApiResponse<bool>> DeleteCheckInAsync(Guid userId, Guid checkInId);
+    Task<ApiResponse<CheckInResponse?>> GetTodayCheckInAsync(Guid userId, Guid goalId);
+    Task<ApiResponse<PagedResponse<CheckInResponse>>> GetCheckInsAsync(Guid userId, GetCheckInsRequest request);
+    Task<ApiResponse<CheckInStatsResponse>> GetCheckInStatsAsync(Guid userId, Guid goalId);
+    Task<ApiResponse<bool>> ProcessRemindLaterAsync(Guid userId, Guid goalId);
+}
+
 public interface IPaymentService
 {
     Task<ApiResponse<bool>> ProcessStakePaymentAsync(Guid userId, Guid goalId, decimal amount);
