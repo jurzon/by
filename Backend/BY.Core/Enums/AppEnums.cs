@@ -31,6 +31,8 @@ public enum UserRole
 public enum PaymentStatus
 {
     Pending,
+    Processing,
+    Authorized,
     Completed,
     Failed,
     Refunded,
@@ -40,7 +42,9 @@ public enum PaymentStatus
 public enum PaymentType
 {
     StakeDeposit,
+    Stake = StakeDeposit, // Alias for backwards compatibility
     FailurePenalty,
+    Failure = FailurePenalty, // Alias for backwards compatibility
     Refund,
     ProcessingFee
 }

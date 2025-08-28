@@ -9,6 +9,7 @@ public class Payment : BaseEntity
     public Guid? CheckInId { get; set; }
     
     public decimal Amount { get; set; }
+    public string Currency { get; set; } = "USD";
     public PaymentType Type { get; set; }
     public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
     

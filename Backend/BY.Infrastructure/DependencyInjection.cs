@@ -1,4 +1,5 @@
 using BY.Core.Interfaces;
+using BY.Infrastructure.Configuration;
 using BY.Infrastructure.Data;
 using BY.Infrastructure.Repositories;
 using BY.Infrastructure.Services;
@@ -38,6 +39,12 @@ public static class DependencyInjection
             });
         }
 
+        // Configure Stripe settings
+        services.Configure<StripeSettings>(options =>
+        {
+            configuration.GetSection(StripeSettings.SectionName).Bind(options);
+        });
+
         // Add repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IGoalRepository, GoalRepository>();
@@ -53,6 +60,8 @@ public static class DependencyInjection
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IGoalService, GoalService>();
+        services.AddScoped<ICheckInService, CheckInService>();
+        services.AddScoped<IPaymentService, PaymentService>();
 
         return services;
     }
