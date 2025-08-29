@@ -1,8 +1,8 @@
-# ?? BY Application - Docker Development Environment
+# 🚀 BY Application - Docker Development Environment
 
 This guide will help you set up and run the BY application using Docker for consistent development across different environments.
 
-## ?? Prerequisites
+## 📋 Prerequisites
 
 - **Docker Desktop** installed and running
 - **Git** for cloning the repository
@@ -12,7 +12,7 @@ This guide will help you set up and run the BY application using Docker for cons
 - **Windows/Mac**: Download from [docker.com](https://www.docker.com/products/docker-desktop)
 - **Linux**: Follow [official Docker installation guide](https://docs.docker.com/engine/install/)
 
-## ?? Quick Start
+## 🏃 Quick Start
 
 ### 1. Clone and Navigate
 ```bash
@@ -35,13 +35,13 @@ Scripts/dev.sh up
 
 ### 3. Access Services
 After startup (2-3 minutes), access:
-- ?? **API**: http://localhost:5185
-- ?? **Health Check**: http://localhost:5185/health
-- ??? **pgAdmin**: http://localhost:8080 (admin@by.local / admin123)
-- ?? **PostgreSQL**: localhost:5432
-- ?? **Redis**: localhost:6379
+- 🌐 **API**: http://localhost:5185
+- ✅ **Health Check**: http://localhost:5185/health
+- 🛠️ **pgAdmin**: http://localhost:8080 (admin@by.local / admin123)
+- 🐘 **PostgreSQL**: localhost:5432
+- 📦 **Redis**: localhost:6379
 
-## ?? Development Commands
+## 🔧 Development Commands
 
 ### Windows Commands
 ```cmd
@@ -67,7 +67,7 @@ Scripts/dev.sh shell     # Open shell in API container
 Scripts/dev.sh clean     # Clean environment (removes data!)
 ```
 
-## ?? Services Overview
+## 📊 Services Overview
 
 | Service | Purpose | URL | Credentials |
 |---------|---------|-----|-------------|
@@ -76,7 +76,7 @@ Scripts/dev.sh clean     # Clean environment (removes data!)
 | **redis** | Redis Cache | localhost:6379 | No auth (dev) |
 | **pgadmin** | Database Management | http://localhost:8080 | admin@by.local / admin123 |
 
-## ?? Database Management
+## 💾 Database Management
 
 ### First Time Setup
 The database will be automatically initialized with:
@@ -103,7 +103,7 @@ dotnet ef migrations list
 Scripts/dev.sh reset-db
 ```
 
-## ?? Testing
+## 🧪 Testing
 
 ### Run All Tests
 ```bash
@@ -121,7 +121,7 @@ docker-compose exec api dotnet test --filter Category=Unit
 docker-compose exec api dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## ?? Monitoring & Debugging
+## 📈 Monitoring & Debugging
 
 ### View Logs
 ```bash
@@ -159,7 +159,7 @@ dotnet ef database update
 dotnet ef migrations list
 ```
 
-## ?? Environment Variables
+## 🔐 Environment Variables
 
 Development environment variables are configured in `docker-compose.yml`. For production, copy `.env.example` to `.env` and customize:
 
@@ -174,7 +174,7 @@ Key variables:
 - `STRIPE_SECRET_KEY`: Stripe integration key
 - `STRIPE_WEBHOOK_SECRET`: Stripe webhook secret
 
-## ?? Security Notes
+## 🛡️ Security Notes
 
 ### Development
 - Uses default passwords (secure for local development)
@@ -188,7 +188,7 @@ Key variables:
 - Restrict database access
 - Disable sensitive data logging
 
-## ?? Troubleshooting
+## ❓ Troubleshooting
 
 ### Common Issues
 
@@ -244,14 +244,14 @@ Scripts/dev.sh clean
 3. **Reset environment**: `Scripts/dev.sh clean && Scripts/dev.sh up`
 4. **Update Docker**: Ensure Docker Desktop is latest version
 
-## ?? Additional Resources
+## 📚 Additional Resources
 
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
 - [PostgreSQL Docker Image](https://hub.docker.com/_/postgres)
 - [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
 - [ASP.NET Core in Docker](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/)
 
-## ?? Development Workflow
+## 💻 Development Workflow
 
 ### Typical Development Session
 ```bash
@@ -287,4 +287,4 @@ Scripts/dev.sh migrate
 
 ---
 
-Happy coding! ?? The BY application Docker environment is ready for development.
+Happy coding! 🎉 The BY application Docker environment is ready for development.
