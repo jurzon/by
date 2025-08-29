@@ -23,8 +23,8 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>(
-  persist(
-    (set, get) => ({
+  (persist as any)(
+    (set: any, get: any) => ({
       // Initial State
       user: null,
       token: null,
@@ -159,7 +159,7 @@ export const useAuthStore = create<AuthState>(
     }),
     {
       name: 'auth-store',
-      partialize: (state) => ({
+      partialize: (state: any) => ({
         user: state.user,
         token: state.token,
         refreshToken: state.refreshToken,

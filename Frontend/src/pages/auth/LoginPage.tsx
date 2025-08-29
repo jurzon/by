@@ -39,22 +39,31 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center px-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-primary-blue via-blue-700 to-purple-700 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-blue to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-2xl">BY</span>
+          </div>
+          <h1 className="text-3xl font-bold text-primary-dark mb-2">Welcome back</h1>
           <p className="text-gray-600">Sign in to your BY account</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 text-sm">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-slide-in">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <p className="text-red-800 text-sm">{error}</p>
+            </div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="form-label">
               Email address
             </label>
             <input
@@ -65,14 +74,14 @@ export const LoginPage: React.FC = () => {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="form-input"
               placeholder="Enter your email"
               disabled={isLoading}
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="form-label">
               Password
             </label>
             <div className="relative">
@@ -84,14 +93,14 @@ export const LoginPage: React.FC = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="form-input pr-10"
                 placeholder="Enter your password"
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-primary-blue transition-colors"
                 disabled={isLoading}
               >
                 {showPassword ? (
@@ -110,10 +119,10 @@ export const LoginPage: React.FC = () => {
               type="checkbox"
               checked={formData.rememberMe}
               onChange={handleChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 text-primary-blue focus:ring-primary-blue border-gray-300 rounded transition-colors"
               disabled={isLoading}
             />
-            <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-900">
+            <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 cursor-pointer">
               Remember me
             </label>
           </div>
@@ -121,7 +130,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="btn-primary w-full py-3 text-base transform hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             {isLoading ? (
               <>
@@ -129,7 +138,12 @@ export const LoginPage: React.FC = () => {
                 Signing in...
               </>
             ) : (
-              'Sign in'
+              <span className="flex items-center justify-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Sign in
+              </span>
             )}
           </button>
         </form>
@@ -139,16 +153,19 @@ export const LoginPage: React.FC = () => {
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className="font-semibold text-primary-blue hover:text-blue-800 transition-colors"
             >
               Create one now
             </Link>
           </p>
         </div>
 
-        <div className="mt-8 p-3 bg-gray-50 rounded-lg text-center">
-          <p className="text-xs text-gray-500 mb-2">Backend is ready!</p>
-          <p className="text-xs text-gray-400">Full API integration with authentication, goals, and payments</p>
+        <div className="mt-8 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-100">
+          <div className="flex items-center justify-center mb-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+            <p className="text-sm font-medium text-green-800">System Ready!</p>
+          </div>
+          <p className="text-xs text-gray-600">Full integration: Authentication, Goals, Payments</p>
         </div>
       </div>
     </div>
