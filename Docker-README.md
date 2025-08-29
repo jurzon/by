@@ -8,19 +8,19 @@ This guide will help you set up and run the BY application using Docker for cons
 - **Git** for cloning the repository
 - **8GB+ RAM** recommended for smooth operation
 
-### Docker Desktop Installation
+### 🐳 Docker Desktop Installation
 - **Windows/Mac**: Download from [docker.com](https://www.docker.com/products/docker-desktop)
 - **Linux**: Follow [official Docker installation guide](https://docs.docker.com/engine/install/)
 
 ## 🏃 Quick Start
 
-### 1. Clone and Navigate
+### 1️⃣ Clone and Navigate
 ```bash
 git clone https://github.com/jurzon/by.git
 cd by
 ```
 
-### 2. Start Development Environment
+### 2️⃣ Start Development Environment
 
 **Windows:**
 ```cmd
@@ -33,17 +33,17 @@ chmod +x Scripts/dev.sh
 Scripts/dev.sh up
 ```
 
-### 3. Access Services
+### 3️⃣ Access Services
 After startup (2-3 minutes), access:
 - 🌐 **API**: http://localhost:5185
 - ✅ **Health Check**: http://localhost:5185/health
 - 🛠️ **pgAdmin**: http://localhost:8080 (admin@by.local / admin123)
 - 🐘 **PostgreSQL**: localhost:5432
-- 📦 **Redis**: localhost:6379
+- 🔴 **Redis**: localhost:6379
 
 ## 🔧 Development Commands
 
-### Windows Commands
+### 🪟 Windows Commands
 ```cmd
 Scripts\dev.cmd up        # Start all services
 Scripts\dev.cmd down      # Stop all services  
@@ -55,7 +55,7 @@ Scripts\dev.cmd shell     # Open shell in API container
 Scripts\dev.cmd clean     # Clean environment (removes data!)
 ```
 
-### Linux/macOS Commands
+### 🐧 Linux/macOS Commands
 ```bash
 Scripts/dev.sh up        # Start all services
 Scripts/dev.sh down      # Stop all services
@@ -71,20 +71,20 @@ Scripts/dev.sh clean     # Clean environment (removes data!)
 
 | Service | Purpose | URL | Credentials |
 |---------|---------|-----|-------------|
-| **api** | BY API Application | http://localhost:5185 | JWT Authentication |
-| **postgres** | PostgreSQL Database | localhost:5432 | by_user / by_password_dev |
-| **redis** | Redis Cache | localhost:6379 | No auth (dev) |
-| **pgadmin** | Database Management | http://localhost:8080 | admin@by.local / admin123 |
+| **🚀 api** | BY API Application | http://localhost:5185 | JWT Authentication |
+| **🐘 postgres** | PostgreSQL Database | localhost:5432 | by_user / by_password_dev |
+| **🔴 redis** | Redis Cache | localhost:6379 | No auth (dev) |
+| **🛠️ pgadmin** | Database Management | http://localhost:8080 | admin@by.local / admin123 |
 
 ## 💾 Database Management
 
-### First Time Setup
+### 🚀 First Time Setup
 The database will be automatically initialized with:
 - Required extensions (uuid-ossp, pgcrypto)
 - Proper user permissions
 - Development configuration
 
-### Access Database
+### 🔌 Access Database
 ```bash
 # Via pgAdmin (GUI)
 # Go to http://localhost:8080
@@ -97,7 +97,7 @@ Scripts/dev.sh shell
 dotnet ef migrations list
 ```
 
-### Reset Database
+### 🔄 Reset Database
 ```bash
 # WARNING: This deletes all data!
 Scripts/dev.sh reset-db
@@ -105,25 +105,25 @@ Scripts/dev.sh reset-db
 
 ## 🧪 Testing
 
-### Run All Tests
+### 🏃 Run All Tests
 ```bash
 Scripts/dev.sh test
 ```
 
-### Run Specific Test Category
+### 🎯 Run Specific Test Category
 ```bash
 docker-compose exec api dotnet test --filter Category=Integration
 docker-compose exec api dotnet test --filter Category=Unit
 ```
 
-### Test with Coverage
+### 📊 Test with Coverage
 ```bash
 docker-compose exec api dotnet test --collect:"XPlat Code Coverage"
 ```
 
 ## 📈 Monitoring & Debugging
 
-### View Logs
+### 📊 View Logs
 ```bash
 # API logs (real-time)
 Scripts/dev.sh logs api
@@ -135,7 +135,7 @@ Scripts/dev.sh logs postgres
 docker-compose logs -f
 ```
 
-### Health Checks
+### ✅ Health Checks
 ```bash
 # Simple health check
 curl http://localhost:5185/health
@@ -147,7 +147,7 @@ curl http://localhost:5185/health/detailed
 Scripts/dev.sh status
 ```
 
-### Debug API
+### 🔧 Debug API
 ```bash
 # Open shell in API container
 Scripts/dev.sh shell
@@ -176,12 +176,12 @@ Key variables:
 
 ## 🛡️ Security Notes
 
-### Development
+### 💻 Development
 - Uses default passwords (secure for local development)
 - Database accessible on localhost:5432
 - Sensitive data logging enabled
 
-### Production
+### 🚀 Production
 - Change ALL default passwords
 - Use environment variables for secrets
 - Enable SSL/TLS
@@ -190,9 +190,9 @@ Key variables:
 
 ## ❓ Troubleshooting
 
-### Common Issues
+### ❓ Common Issues
 
-**Port Conflicts:**
+**🔌 Port Conflicts:**
 ```bash
 # Check what's using port 5185
 netstat -tulpn | grep 5185  # Linux/Mac
@@ -201,7 +201,7 @@ netstat -ano | findstr 5185  # Windows
 # Stop conflicting services or change ports in docker-compose.yml
 ```
 
-**Database Connection Issues:**
+**🐘 Database Connection Issues:**
 ```bash
 # Check if PostgreSQL is healthy
 docker-compose ps postgres
@@ -213,7 +213,7 @@ Scripts/dev.sh logs postgres
 Scripts/dev.sh reset-db
 ```
 
-**API Not Starting:**
+**🚀 API Not Starting:**
 ```bash
 # Check API logs
 Scripts/dev.sh logs api
@@ -225,7 +225,7 @@ docker-compose build api
 curl http://localhost:5185/health
 ```
 
-**Memory Issues:**
+**💾 Memory Issues:**
 ```bash
 # Check Docker resource limits
 docker system df
@@ -237,7 +237,7 @@ docker system prune
 Scripts/dev.sh clean
 ```
 
-### Getting Help
+### 🆘 Getting Help
 
 1. **Check service status**: `Scripts/dev.sh status`
 2. **View logs**: `Scripts/dev.sh logs api`
@@ -253,7 +253,7 @@ Scripts/dev.sh clean
 
 ## 💻 Development Workflow
 
-### Typical Development Session
+### 🔄 Typical Development Session
 ```bash
 # 1. Start environment
 Scripts/dev.sh up
@@ -274,7 +274,7 @@ Scripts/dev.sh logs api
 Scripts/dev.sh down
 ```
 
-### Database Changes
+### 💾 Database Changes
 ```bash
 # 1. Make Entity Framework changes
 # 2. Create migration
