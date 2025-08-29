@@ -26,99 +26,132 @@ public class CheckInService : ICheckInService
     {
         try
         {
+            // ADDED: verbose diagnostics
+            _logger.LogDebug("[CreateCheckIn] START user={UserId} goal={GoalId} result={Result} rawDate={RawDate}", userId, request.GoalId, request.Result, request.Date);
             // Validate the goal belongs to the user
             var goal = await _unitOfWork.Goals.GetByIdAsync(request.GoalId);
             if (goal == null)
             {
+                _logger.LogWarning("[CreateCheckIn] Goal not found goal={GoalId} user={UserId}", request.GoalId, userId);
                 return ApiResponse<CheckInResponse>.FailureResult("Goal not found");
             }
 
             if (goal.UserId != userId)
             {
+                _logger.LogWarning("[CreateCheckIn] Goal ownership mismatch goal={GoalId} owner={OwnerId} user={UserId}", request.GoalId, goal.UserId, userId);
                 return ApiResponse<CheckInResponse>.FailureResult("Goal does not belong to the current user");
             }
 
             // Check if goal is active
             if (goal.Status != GoalStatus.Active)
             {
+                _logger.LogWarning("[CreateCheckIn] Inactive goal status={Status} goal={GoalId}", goal.Status, goal.Id);
                 return ApiResponse<CheckInResponse>.FailureResult("Cannot check-in to an inactive goal");
             }
 
             // Use provided date or default to today
             var checkInDate = request.Date ?? DateOnly.FromDateTime(DateTime.UtcNow);
+            _logger.LogDebug("[CreateCheckIn] Resolved date={Date}", checkInDate);
 
             // Check if check-in already exists for this date
-            var existingCheckIn = await _unitOfWork.CheckIns.GetTodayCheckInAsync(request.GoalId, checkInDate);
+            CheckIn? existingCheckIn = null;
+            try
+            {
+                existingCheckIn = await _unitOfWork.CheckIns.GetTodayCheckInAsync(request.GoalId, checkInDate);
+            }
+            catch (Exception repoLookupEx)
+            {
+                _logger.LogError(repoLookupEx, "[CreateCheckIn] Repository lookup failed goal={GoalId} date={Date}", request.GoalId, checkInDate);
+                return ApiResponse<CheckInResponse>.FailureResult($"Lookup failure: {repoLookupEx.Message}");
+            }
             if (existingCheckIn != null)
             {
+                _logger.LogInformation("[CreateCheckIn] Duplicate prevented goal={GoalId} date={Date}", request.GoalId, checkInDate);
                 return ApiResponse<CheckInResponse>.FailureResult("Check-in already exists for this date");
             }
 
             // Handle "Remind Later" case - no actual check-in created
             if (request.Result == CheckInResult.RemindLater)
             {
-                _logger.LogInformation("User {UserId} requested reminder for goal {GoalId}", userId, request.GoalId);
-                
-                // TODO: Schedule a reminder notification (implement later)
-                // For now, just return success without creating a check-in
-                
+                _logger.LogInformation("[CreateCheckIn] RemindLater user={UserId} goal={GoalId}", userId, request.GoalId);
                 return ApiResponse<CheckInResponse>.SuccessResult(null!, "Reminder scheduled successfully");
             }
 
-            // Create the check-in
+            // Create the check-in with explicit UTC DateTime
+            var utcNow = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
             var checkIn = new CheckIn
             {
                 GoalId = request.GoalId,
                 Date = checkInDate,
                 Completed = request.Result == CheckInResult.Yes,
                 Notes = request.Notes?.Trim(),
-                CheckInTime = DateTime.UtcNow,
+                CheckInTime = utcNow, // Ensure UTC kind is specified
                 PaymentProcessed = false,
                 StreakCount = 0 // Will be calculated
             };
 
             // Calculate streak
-            await UpdateStreakCountAsync(checkIn);
+            try
+            {
+                await UpdateStreakCountAsync(checkIn);
+            }
+            catch (Exception streakEx)
+            {
+                _logger.LogError(streakEx, "[CreateCheckIn] Streak calc failed goal={GoalId}", request.GoalId);
+            }
 
             // Add check-in to database
-            await _unitOfWork.CheckIns.AddAsync(checkIn);
+            try
+            {
+                await _unitOfWork.CheckIns.AddAsync(checkIn);
+            }
+            catch (Exception addEx)
+            {
+                _logger.LogError(addEx, "[CreateCheckIn] Add failed goal={GoalId}", request.GoalId);
+                return ApiResponse<CheckInResponse>.FailureResult($"Add failure: {addEx.Message}");
+            }
 
             // Process payment if user failed (said "No")
             if (request.Result == CheckInResult.No && goal.DailyStakeAmount > 0)
             {
-                var paymentResult = await _paymentService.ProcessFailurePaymentAsync(userId, checkIn.Id, goal.DailyStakeAmount);
-                
-                if (paymentResult.Success)
+                try
                 {
-                    checkIn.PaymentProcessed = true;
-                    checkIn.AmountCharged = goal.DailyStakeAmount;
-                    
-                    _logger.LogInformation("Processed failure payment of {Amount} for user {UserId}, goal {GoalId}", 
-                        goal.DailyStakeAmount, userId, request.GoalId);
+                    var paymentResult = await _paymentService.ProcessFailurePaymentAsync(userId, checkIn.Id, goal.DailyStakeAmount);
+                    if (paymentResult.Success)
+                    {
+                        checkIn.PaymentProcessed = true;
+                        checkIn.AmountCharged = goal.DailyStakeAmount;
+                        _logger.LogInformation("[CreateCheckIn] Failure payment processed amount={Amount} goal={GoalId}", goal.DailyStakeAmount, goal.Id);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("[CreateCheckIn] Failure payment attempt failed reason={Reason}", paymentResult.Message);
+                    }
                 }
-                else
+                catch (Exception payEx)
                 {
-                    _logger.LogWarning("Failed to process payment for user {UserId}, goal {GoalId}: {Error}", 
-                        userId, request.GoalId, paymentResult.Message);
-                    
-                    // Continue with check-in creation even if payment fails
-                    // Payment can be retried later
+                    _logger.LogError(payEx, "[CreateCheckIn] Payment exception goal={GoalId}", goal.Id);
                 }
             }
 
-            await _unitOfWork.SaveChangesAsync();
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception saveEx)
+            {
+                _logger.LogError(saveEx, "[CreateCheckIn] SaveChanges failed goal={GoalId}", goal.Id);
+                return ApiResponse<CheckInResponse>.FailureResult($"Save failure: {saveEx.Message}");
+            }
 
             var response = MapToCheckInResponse(checkIn, goal);
-            
-            _logger.LogInformation("Created check-in for user {UserId}, goal {GoalId}, result: {Result}", 
-                userId, request.GoalId, request.Result);
-
+            _logger.LogInformation("[CreateCheckIn] SUCCESS user={UserId} goal={GoalId} result={Result}", userId, request.GoalId, request.Result);
             return ApiResponse<CheckInResponse>.SuccessResult(response, "Check-in created successfully");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating check-in for user {UserId}, goal {GoalId}", userId, request.GoalId);
-            return ApiResponse<CheckInResponse>.FailureResult("An error occurred while creating the check-in");
+            _logger.LogError(ex, "[CreateCheckIn] Unhandled error user={UserId} goal={GoalId}", userId, request.GoalId);
+            return ApiResponse<CheckInResponse>.FailureResult($"Unhandled error: {ex.Message}");
         }
     }
 
@@ -269,14 +302,14 @@ public class CheckInService : ICheckInService
                 return ApiResponse<PagedResponse<CheckInResponse>>.SuccessResult(new PagedResponse<CheckInResponse>());
             }
 
-            // Build filter expression
+            // Build filter expression - ensure DateTime filtering uses UTC
             var checkIns = await _unitOfWork.CheckIns.GetWhereAsync(c => 
                 userGoalIds.Contains(c.GoalId) &&
                 (!request.GoalId.HasValue || c.GoalId == request.GoalId.Value) &&
                 (!request.Completed.HasValue || c.Completed == request.Completed.Value) &&
                 (!request.PaymentProcessed.HasValue || c.PaymentProcessed == request.PaymentProcessed.Value) &&
-                (!request.FromDate.HasValue || c.CheckInTime >= request.FromDate.Value) &&
-                (!request.ToDate.HasValue || c.CheckInTime <= request.ToDate.Value));
+                (!request.FromDate.HasValue || c.CheckInTime >= DateTime.SpecifyKind(request.FromDate.Value, DateTimeKind.Utc)) &&
+                (!request.ToDate.HasValue || c.CheckInTime <= DateTime.SpecifyKind(request.ToDate.Value, DateTimeKind.Utc)));
 
             var orderedCheckIns = checkIns.OrderByDescending(c => c.CheckInTime).ToList();
 

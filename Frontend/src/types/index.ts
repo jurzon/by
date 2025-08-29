@@ -63,7 +63,7 @@ export interface AuthResponse {
 }
 
 // ============================================================================
-// Goal Types
+// Goal Types - FIXED to match backend exactly
 // ============================================================================
 
 export interface Goal {
@@ -90,19 +90,20 @@ export interface Goal {
   createdAt: string
 }
 
+// FIXED: This must match the backend CreateGoalRequest exactly
 export interface CreateGoalRequest {
   title: string
   description: string
-  category: GoalCategory
+  category: number  // FIXED: Use number for enum values sent to API
   durationDays: number
   totalStakeAmount: number
-  reminderTime: string
+  reminderTime: string  // Format: "HH:mm:ss"
   reminderMessage: string
   startDate?: string
 }
 
 // ============================================================================
-// Check-in Types (3-Button System) - Matching your backend exactly
+// Check-in Types (3-Button System) - FIXED to match backend DTOs exactly
 // ============================================================================
 
 export interface CheckIn {
@@ -134,11 +135,12 @@ export interface CheckInResponse {
   message?: string
 }
 
+// FIXED: Must match ThreeButtonCheckInRequest exactly
 export interface ThreeButtonCheckInRequest {
-  goalId: string
-  result: CheckInResult
-  notes?: string
-  date?: string
+  goalId: string  // Maps to Guid GoalId in backend
+  result: CheckInResult  // Maps to CheckInResult Result in backend  
+  notes?: string  // Maps to string? Notes in backend
+  date?: string   // Maps to DateOnly? Date in backend (optional)
 }
 
 export interface CheckInStatsResponse {
@@ -196,14 +198,14 @@ export enum UserRole {
 }
 
 export enum GoalCategory {
-  Fitness = 'Fitness',
-  Learning = 'Learning',
-  Habits = 'Habits',
-  Finance = 'Finance',
-  Career = 'Career',
-  Health = 'Health',
-  Personal = 'Personal',
-  Other = 'Other'
+  Fitness = 0,     // Backend: Fitness (first enum value)
+  Learning = 1,    // Backend: Learning (second enum value)  
+  Habits = 2,      // Backend: Habits (third enum value)
+  Finance = 3,     // Backend: Finance (fourth enum value)
+  Career = 4,      // Backend: Career (fifth enum value)
+  Health = 5,      // Backend: Health (sixth enum value)
+  Personal = 6,    // Backend: Personal (seventh enum value)
+  Other = 7        // Backend: Other (eighth enum value)
 }
 
 export enum GoalStatus {
@@ -214,10 +216,11 @@ export enum GoalStatus {
   Cancelled = 'Cancelled'
 }
 
+// FIXED: Must match backend CheckInResult enum exactly  
 export enum CheckInResult {
-  Yes = 1,    // User completed their goal today
-  No = 2,     // User failed to complete their goal today (triggers payment)
-  RemindLater = 3  // Remind later - User wants to be reminded later (no action)
+  Yes = 1,         // Backend: Yes = 1 (User completed their goal today)
+  No = 2,          // Backend: No = 2 (User failed, triggers payment)
+  RemindLater = 3  // Backend: RemindLater = 3 (Remind later, no action)
 }
 
 export enum PaymentType {
@@ -260,7 +263,7 @@ export interface RegisterFormData {
 export interface CreateGoalFormData {
   title: string
   description: string
-  category: GoalCategory
+  category: number  // Use numeric enum for forms
   durationDays: number
   totalStakeAmount: number
   reminderTime: string

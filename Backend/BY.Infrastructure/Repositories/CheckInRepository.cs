@@ -22,9 +22,14 @@ public class CheckInRepository : Repository<CheckIn>, ICheckInRepository
 
     public async Task<CheckIn?> GetTodayCheckInAsync(Guid goalId, DateOnly date)
     {
+        // Convert DateOnly to UTC DateTime range to avoid PostgreSQL timezone issues
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var endOfDay = date.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
+        
         return await _dbSet
             .Include(c => c.Payment)
-            .FirstOrDefaultAsync(c => c.GoalId == goalId && c.Date == date);
+            .Where(c => c.GoalId == goalId && c.Date == date)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<CheckIn>> GetUserCheckInsAsync(Guid userId, DateTime fromDate, DateTime toDate)

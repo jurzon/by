@@ -6,14 +6,14 @@ import apiClient, {
   updateGoal as apiUpdateGoal,
   deleteGoal as apiDeleteGoal,
   getTodayCheckIn as apiGetTodayCheckIn,
-  threeButtonCheckIn as apiThreeButtonCheckIn
+  threeButtonCheckIn as apiThreeButtonCheckIn  // BACK TO ORIGINAL
 } from '../lib/api'
 import type { Goal, CheckInResult, CheckInResponse } from '../types'
 
 interface GoalState {
   goals: Goal[]
   activeGoals: Goal[]
-  todayCheckIn: CheckInResponse | null
+  todayCheckIns: Record<string, CheckInResponse | null> // FIXED: Per-goal check-ins
   isLoading: boolean
   error: string | null
 }
@@ -37,7 +37,7 @@ export const useGoalStore = create<GoalStore>()(
       (set, get) => ({
         goals: [],
         activeGoals: [],
-        todayCheckIn: null,
+        todayCheckIns: {}, // FIXED: Initialize as empty object
         isLoading: false,
         error: null,
 
@@ -94,6 +94,10 @@ export const useGoalStore = create<GoalStore>()(
             set(state => ({
               goals: state.goals.filter(g => g.id !== id),
               activeGoals: state.activeGoals.filter(g => g.id !== id),
+              // FIXED: Remove the goal's check-in data
+              todayCheckIns: Object.fromEntries(
+                Object.entries(state.todayCheckIns).filter(([goalId]) => goalId !== id)
+              ),
               isLoading: false
             }))
           } catch (e: any) {
@@ -106,32 +110,136 @@ export const useGoalStore = create<GoalStore>()(
           try {
             set({ isLoading: true, error: null })
             const response = await apiGetTodayCheckIn(goalId)
-            set({ todayCheckIn: response.data || null, isLoading: false })
+            // FIXED: Set check-in for specific goal
+            set(state => ({
+              todayCheckIns: {
+                ...state.todayCheckIns,
+                [goalId]: response.data || null
+              },
+              isLoading: false
+            }))
           } catch (e: any) {
-            // 404 means none yet today
-            if (e.status !== 404) {
-              set({ error: e.message || 'Failed to load check-in status' })
-            }
-            set({ todayCheckIn: null, isLoading: false })
+            // Gracefully handle errors - no check-in for today is normal
+            console.log('No check-in for today:', e.message)
+            set(state => ({
+              todayCheckIns: {
+                ...state.todayCheckIns,
+                [goalId]: null
+              },
+              isLoading: false
+            }))
           }
         },
 
         performCheckIn: async (goalId: string, result: CheckInResult, notes?: string) => {
           try {
             set({ isLoading: true, error: null })
+            
+            console.log('Performing check-in:', { goalId, result, notes }); // Debug log
+            
+            // BACK TO: Use threeButtonCheckIn with proper format
             const response = await apiThreeButtonCheckIn({
               goalId,
               result,
-              notes: notes || undefined,
-              date: new Date().toISOString().split('T')[0]
+              notes: notes || undefined
+              // No date field - let backend use current date
             })
+            
             const checkInResponse = response.data!
-            set({ todayCheckIn: checkInResponse, isLoading: false })
+            // FIXED: Set check-in for specific goal only
+            set(state => ({
+              todayCheckIns: {
+                ...state.todayCheckIns,
+                [goalId]: checkInResponse
+              },
+              isLoading: false
+            }))
             get().loadGoals()
             return checkInResponse
           } catch (e: any) {
-            set({ error: e.message || 'Failed to perform check-in', isLoading: false })
-            throw e
+            console.error('Check-in error:', e); // Debug log
+            
+            // ENHANCED ERROR LOGGING - Log the full response details
+            console.error('Full error response:', {
+              status: e?.response?.status,
+              statusText: e?.response?.statusText,
+              data: e?.response?.data,
+              message: e?.message
+            });
+            
+            // Check if it's "Goal not found" error - might need to reload goals
+            const backendMessage = e?.response?.data?.message;
+            if (backendMessage === "Goal not found") {
+              console.log('Goal not found - reloading goals and retrying...')
+              await get().loadGoals();
+              
+              // Check if goal exists after reload
+              const currentState = get();
+              const goalExists = currentState.activeGoals.some(g => g.id === goalId);
+              
+              if (!goalExists) {
+                const errorMessage = 'This goal no longer exists. Please refresh the page.';
+                set({ error: errorMessage, isLoading: false })
+                throw new Error(errorMessage)
+              }
+              
+              // Retry the check-in
+              try {
+                const retryResponse = await apiThreeButtonCheckIn({
+                  goalId,
+                  result,
+                  notes: notes || undefined
+                })
+                
+                const checkInResponse = retryResponse.data!
+                // FIXED: Set check-in for specific goal only
+                set(state => ({
+                  todayCheckIns: {
+                    ...state.todayCheckIns,
+                    [goalId]: checkInResponse
+                  },
+                  isLoading: false
+                }))
+                get().loadGoals()
+                return checkInResponse
+              } catch (retryError: any) {
+                console.error('Retry failed:', retryError);
+                // Fall through to normal error handling
+                e = retryError;
+              }
+            }
+            
+            // Better error handling
+            let errorMessage = 'Failed to perform check-in';
+            
+            if (e?.response?.data?.errors) {
+              // Handle validation errors
+              const errors = e.response.data.errors;
+              const errorMessages = [];
+              
+              for (const field in errors) {
+                if (Array.isArray(errors[field])) {
+                  errorMessages.push(...errors[field]);
+                } else {
+                  errorMessages.push(errors[field]);
+                }
+              }
+              
+              errorMessage = errorMessages.join(', ');
+            } else if (e?.response?.data?.message) {
+              errorMessage = `Backend error: ${e.response.data.message}`;
+            } else if (e?.message) {
+              errorMessage = e.message;
+            } else if (e?.response?.status === 400) {
+              errorMessage = 'Invalid check-in data. Please try again.';
+            } else if (e?.response?.status === 401) {
+              errorMessage = 'Please log in again to check in.';
+            } else if (e?.response?.status === 500) {
+              errorMessage = 'Server error. Please check if the backend is running.';
+            }
+            
+            set({ error: errorMessage, isLoading: false })
+            throw new Error(errorMessage)
           }
         },
 
@@ -140,7 +248,12 @@ export const useGoalStore = create<GoalStore>()(
       }),
       {
         name: 'goal-store',
-        partialize: (state) => ({ goals: state.goals, activeGoals: state.activeGoals })
+        partialize: (state) => ({ 
+          goals: state.goals, 
+          activeGoals: state.activeGoals,
+          // FIXED: Don't persist per-goal check-ins to avoid stale data
+          // todayCheckIns will be loaded fresh each time
+        })
       }
     ),
     { name: 'goal-store' }
@@ -150,4 +263,5 @@ export const useGoalStore = create<GoalStore>()(
 export const useActiveGoals = () => useGoalStore(state => state.activeGoals)
 export const useGoalsLoading = () => useGoalStore(state => state.isLoading)
 export const useGoalsError = () => useGoalStore(state => state.error)
-export const useTodayCheckIn = () => useGoalStore(state => state.todayCheckIn)
+// FIXED: Updated to get check-in for specific goal
+export const useTodayCheckIn = (goalId: string) => useGoalStore(state => state.todayCheckIns[goalId] || null)

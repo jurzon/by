@@ -9,6 +9,9 @@ public class HealthController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<HealthController> _logger;
+    private static DateTime _lastDbCheck = DateTime.MinValue;
+    private static string _lastDbStatus = "Unknown";
+    private static readonly object _lockObject = new object();
 
     public HealthController(IUnitOfWork unitOfWork, ILogger<HealthController> logger)
     {
@@ -62,15 +65,38 @@ public class HealthController : ControllerBase
 
     private async Task<string> CheckDatabaseHealth()
     {
+        // Cache database health check for 30 seconds to prevent spam
+        lock (_lockObject)
+        {
+            if (DateTime.UtcNow - _lastDbCheck < TimeSpan.FromSeconds(30))
+            {
+                return _lastDbStatus;
+            }
+        }
+
         try
         {
-            // Simple database connectivity check
-            await _unitOfWork.Users.CountAsync();
+            // Simple database connectivity check - just test connection, don't count
+            await _unitOfWork.Users.GetFirstOrDefaultAsync(u => true);
+            
+            lock (_lockObject)
+            {
+                _lastDbCheck = DateTime.UtcNow;
+                _lastDbStatus = "Healthy";
+            }
+            
             return "Healthy";
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Database health check failed");
+            
+            lock (_lockObject)
+            {
+                _lastDbCheck = DateTime.UtcNow;
+                _lastDbStatus = "Unhealthy";
+            }
+            
             return "Unhealthy";
         }
     }
@@ -94,7 +120,7 @@ public class HealthController : ControllerBase
             Days = uptime.Days,
             Hours = uptime.Hours,
             Minutes = uptime.Minutes,
-            TotalMinutes = (int)uptime.TotalMinutes
+            Seconds = uptime.Seconds
         };
     }
 }

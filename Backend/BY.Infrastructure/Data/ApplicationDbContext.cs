@@ -276,7 +276,7 @@ public class ApplicationDbContext : DbContext
 public class DateOnlyConverter : ValueConverter<DateOnly, DateTime>
 {
     public DateOnlyConverter() : base(
-        dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),
+        dateOnly => DateTime.SpecifyKind(dateOnly.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc),
         dateTime => DateOnly.FromDateTime(dateTime))
     {
     }

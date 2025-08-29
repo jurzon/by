@@ -37,6 +37,77 @@ cd Backend
 dotnet run
 ```
 
+## 🛠️ Development Scripts Guide
+
+The `Scripts` folder contains helper scripts for managing the development environment:
+
+### Windows
+Use `Scripts\dev.cmd` for common development tasks:
+```cmd
+Scripts\dev.cmd up        # Start development environment (Docker)
+Scripts\dev.cmd down      # Stop development environment
+Scripts\dev.cmd clean     # Remove containers, volumes, and data (DANGEROUS)
+Scripts\dev.cmd logs api  # View logs for API service
+Scripts\dev.cmd migrate   # Run database migrations
+Scripts\dev.cmd reset-db  # Reset the database (WARNING: deletes all data)
+Scripts\dev.cmd test      # Run backend tests
+Scripts\dev.cmd status    # Show environment status
+Scripts\dev.cmd shell     # Open shell in API container
+```
+
+You can also use `Scripts\dev-setup.bat` to initialize the environment and create the `.env` file from template.
+
+### Linux/macOS
+Use `Scripts/dev.sh` for the same tasks:
+```bash
+./Scripts/dev.sh up        # Start development environment (Docker)
+./Scripts/dev.sh down      # Stop development environment
+./Scripts/dev.sh clean     # Remove containers, volumes, and data (DANGEROUS)
+./Scripts/dev.sh logs api  # View logs for API service
+./Scripts/dev.sh migrate   # Run database migrations
+./Scripts/dev.sh reset-db  # Reset the database (WARNING: deletes all data)
+./Scripts/dev.sh test      # Run backend tests
+./Scripts/dev.sh status    # Show environment status
+./Scripts/dev.sh shell     # Open shell in API container
+```
+
+You can also use `Scripts/dev-setup.sh` to initialize the environment and create the `.env` file from template.
+
+### Database Initialization
+- `Scripts/init-db.sql`: SQL script for initial database setup (used internally by migrations).
+
+## 💻 Starting the Frontend
+
+To start the frontend React application:
+```bash
+cd Frontend
+npm install
+npm run dev
+```
+This will launch the frontend at [http://localhost:3000](http://localhost:3000).
+
+## 🔐 Test Login Credentials
+
+The system automatically seeds test users when the database is first initialized. Use these credentials for testing:
+
+### 👤 **Test User Account**
+- **Email**: `test@example.com`
+- **Password**: `Test123!`
+- **Features**: Standard user with pre-configured sample goal ("Daily Exercise")
+
+### 👑 **Admin Account**
+- **Email**: `admin@byapp.com`
+- **Password**: `Admin123!`
+- **Features**: Administrator access with full system privileges
+
+### 🧪 **What You Can Test**
+After logging in, you can explore:
+- ✅ **3-Button Check-in System** (Yes/No/Remind Later)
+- 📊 **Dashboard with goal tracking**
+- 💳 **Payment integration (Stripe)**
+- 🎯 **Goal management and creation**
+- 📈 **Progress visualization and streaks**
+
 ## 💻 Contributing
 This project is in early development. Please refer to our development roadmap for current priorities.
 
