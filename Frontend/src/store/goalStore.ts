@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import apiClient, {
+import {
   getGoals as apiGetGoals,
   createGoal as apiCreateGoal,
   updateGoal as apiUpdateGoal,

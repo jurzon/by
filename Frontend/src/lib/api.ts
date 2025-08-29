@@ -11,13 +11,11 @@ import {
   ThreeButtonCheckInRequest,
   CheckInStatsResponse,
   PaginatedResponse,
-  CheckInResult,
-  GetCheckInsRequest,
-  UpdateCheckInRequest
+  CheckInResult
 } from '../types'
 
 // API Client Configuration - Matching your backend exactly
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5186'
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5186'
 
 class ApiClient {
   private client: AxiosInstance

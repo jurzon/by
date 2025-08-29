@@ -31,7 +31,7 @@ const ThreeButtonCheckIn: React.FC<ThreeButtonCheckInProps> = ({
       const res = await performCheckIn(goalId, result, notes.trim() || undefined)
       if (result === CheckInResult.Yes) toast.success('Check-in recorded: YES')
       else if (result === CheckInResult.No) toast.error(`Failure recorded. Amount charged: $${res.amountCharged || 0}`)
-      else toast.info('Remind later selected')
+      else toast('Remind later selected')
       setNotes('')
       onCheckIn?.(result, notes.trim() || undefined)
     } catch (e: any) {
