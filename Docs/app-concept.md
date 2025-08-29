@@ -1,16 +1,16 @@
 # App Concept & Core Features
 
-## ?? What is BY?
+## 🚀 What is BY?
 BY is a behavioral accountability application that leverages financial commitment and social support to help users achieve their self-improvement goals. The core principle is simple: **"Put your money where your mouth is"** - users stake real money on their commitments, which they lose if they fail to meet their goals.
 
-## ?? Psychology Behind BY
+## 🧠 Psychology Behind BY
 The app is built on proven behavioral psychology principles:
 - **Loss Aversion**: People are more motivated to avoid losing money than gaining rewards
 - **Social Accountability**: Public commitments and community support increase success rates
 - **Implementation Intentions**: Specific, measurable goals with clear timelines
 - **Progress Tracking**: Visual feedback on advancement toward goals
 
-## ?? Core Features
+## 📋 Core Features
 
 ### 1. Goal Creation & Commitment
 - **Goal Definition**: Users create specific, measurable, time-bound goals
@@ -47,7 +47,7 @@ The app is built on proven behavioral psychology principles:
 - **Charity Donations**: Failed stakes go to user-selected charities
 - **Premium Features**: Optional paid features for enhanced experience
 
-## ?? User Journey
+## 🏃 User Journey
 
 ### Onboarding
 1. User downloads app and creates account
@@ -76,32 +76,32 @@ The app is built on proven behavioral psychology principles:
 3. Celebration and sharing achievement
 4. Option to create new goals
 
-## ?? Security & Trust
+## 🛡️ Security & Trust
 - **Secure Payments**: PCI-compliant payment processing
 - **Fair Verification**: Multiple verification methods to prevent cheating
 - **Dispute Resolution**: Clear process for handling disagreements
 - **Privacy Protection**: User data encryption and privacy controls
 
-## ?? Target Audience
+## 👥 Target Audience
 - **Primary**: Adults 25-45 seeking self-improvement (fitness, learning, habits)
 - **Secondary**: Students, professionals, anyone with specific goals
 - **Geographic**: Initially English-speaking markets (US, UK, Canada, Australia)
 
-## ?? Success Metrics
+## 📈 Success Metrics
 - **User Engagement**: Daily active users, session duration
 - **Goal Success Rate**: Percentage of completed commitments
 - **Revenue**: Stakes processed, premium subscriptions
 - **Community Health**: User interactions, peer support activity
 - **Retention**: 30/60/90-day user retention rates
 
-## ?? Unique Value Proposition
+## 🎯 Unique Value Proposition
 1. **Real Financial Stakes**: Unlike other apps, failure has real consequences
 2. **Community Accountability**: Peer support and verification
 3. **Flexible Goal Types**: Supports various commitment styles and timeframes
 4. **Evidence-Based**: Requires proof, not just self-reporting
 5. **Charitable Impact**: Failed stakes support good causes
 
-## ?? Competitive Advantages
+## 🏆 Competitive Advantages
 - First-mover advantage in monetary accountability space
 - Strong behavioral psychology foundation
 - Flexible platform supporting various goal types

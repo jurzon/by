@@ -1,11 +1,11 @@
 # API Documentation
 
-## ?? Base URL
+## 🌐 Base URL
 - **Development**: `http://localhost:5000/api/v1`
 - **Staging**: `https://api-staging.byapp.com/api/v1`
 - **Production**: `https://api.byapp.com/api/v1`
 
-## ?? Authentication
+## 🔐 Authentication
 
 ### Overview
 The API uses JWT (JSON Web Token) for authentication. Include the token in the Authorization header:
@@ -76,7 +76,7 @@ Authorization: Bearer <token>
 
 ---
 
-## ?? User Management
+## 👤 User Management
 
 ### Get Current User Profile
 ```http
@@ -118,7 +118,7 @@ Content-Type: application/json
 
 ---
 
-## ?? Goals Management
+## 🎯 Goals Management
 
 ### Create Goal
 ```http
@@ -200,7 +200,7 @@ Authorization: Bearer <token>
 
 ---
 
-## ?? Progress Tracking
+## 📊 Progress Tracking
 
 ### Submit Progress (Simplified Check-in)
 ```http
@@ -283,7 +283,7 @@ Authorization: Bearer <token>
 
 ---
 
-## ?? Payment Management
+## 💳 Payment Management
 
 ### Add Payment Method
 ```http
@@ -325,7 +325,7 @@ Authorization: Bearer <token>
 
 ---
 
-## ?? Community Features
+## 👥 Community Features
 
 ### Get Community Feed
 ```http
@@ -361,7 +361,7 @@ Content-Type: application/json
 
 ---
 
-## ?? Analytics & Insights
+## 📈 Analytics & Insights
 
 ### Get User Statistics
 ```http
@@ -396,7 +396,7 @@ Authorization: Bearer <token>
 
 ---
 
-## ?? Admin Endpoints
+## 🔧 Admin Endpoints
 
 ### Get All Users (Admin Only)
 ```http
@@ -424,7 +424,7 @@ Content-Type: application/json
 
 ---
 
-## ?? Response Format
+## 📋 Response Format
 
 ### Success Response
 ```json
@@ -461,7 +461,7 @@ Content-Type: application/json
 
 ---
 
-## ?? Error Codes
+## ⚠️ Error Codes
 
 | Code | HTTP Status | Description |
 |------|-------------|-------------|
@@ -476,7 +476,7 @@ Content-Type: application/json
 
 ---
 
-## ?? Rate Limiting
+## 🚦 Rate Limiting
 
 - **Authentication endpoints**: 5 requests per minute per IP
 - **General API**: 100 requests per minute per user
@@ -485,7 +485,7 @@ Content-Type: application/json
 
 ---
 
-## ?? Webhooks
+## 🔗 Webhooks
 
 ### Stripe Payment Webhooks
 ```http
@@ -506,7 +506,7 @@ The system automatically processes goal deadlines and sends appropriate notifica
 
 ---
 
-## ?? Security Considerations
+## 🛡️ Security Considerations
 
 1. **HTTPS Only**: All API communication must use HTTPS
 2. **Input Validation**: All inputs are validated and sanitized
@@ -518,7 +518,7 @@ The system automatically processes goal deadlines and sends appropriate notifica
 
 ---
 
-## ?? API Versioning
+## 🏷️ API Versioning
 
 The API uses URL versioning:
 - Current version: `v1`
@@ -527,7 +527,7 @@ The API uses URL versioning:
 
 ---
 
-## ??? SDKs and Tools
+## 🛠️ SDKs and Tools
 
 ### Postman Collection
 Import our Postman collection for easy API testing:
