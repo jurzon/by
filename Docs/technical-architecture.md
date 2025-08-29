@@ -1,55 +1,55 @@
 # Technical Architecture
 
-## ??? System Architecture Overview
+## 📊 System Architecture Overview
 
 ### High-Level Architecture
 ```
-???????????????????    ???????????????????    ???????????????????
-?   Mobile Apps   ?    ?   Web Frontend  ?    ?  Admin Panel    ?
-?  (iOS/Android)  ?    ?   (React/Vue)   ?    ?   (React)       ?
-???????????????????    ???????????????????    ???????????????????
-          ?                      ?                      ?
-          ???????????????????????????????????????????????
-                                 ?
-         ???????????????????????????????????????????????????
-         ?                API Gateway                      ?
-         ?              (NGINX/Kong)                       ?
-         ???????????????????????????????????????????????????
-                               ?
-         ???????????????????????????????????????????????????
-         ?              .NET Core API                      ?
-         ?         (Controllers, Services, Auth)           ?
-         ???????????????????????????????????????????????????
-                               ?
-    ???????????????????????????????????????????????????????
-    ?                          ?                          ?
-??????????    ????????????????????    ???????????????????
-?Database?    ?   Payment APIs   ?    ?  External APIs  ?
-?(SQL)   ?    ?(Stripe, PayPal)  ?    ?(Fitness, etc.)  ?
-??????????    ????????????????????    ???????????????????
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Mobile Apps   │    │   Web Frontend  │    │  Admin Panel    │
+│  (iOS/Android)  │    │   (React/Vue)   │    │   (React)       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+         ┌─────────────────────────────────────────────┐
+         │                API Gateway                      │
+         │              (NGINX/Kong)                       │
+         └─────────────────────────────────────────────┘
+                               │
+         ┌─────────────────────────────────────────────┐
+         │              .NET Core API                      │
+         │         (Controllers, Services, Auth)           │
+         └─────────────────────────────────────────────┘
+                               │
+    ┌──────────────────────────┼──────────────────────────┐
+    │                          │                          │
+┌─────────┐    ┌──────────────┐    ┌─────────────────┐
+│Database │    │   Payment APIs   │    │  External APIs  │
+│(SQL)   │    │(Stripe, PayPal)  │    │(Fitness, etc.)  │
+└─────────┘    └──────────────┘    └─────────────────┘
 ```
 
-## ?? Backend Architecture (.NET Core)
+## 🛠️ Backend Architecture (.NET Core)
 
 ### Project Structure
 ```
 Backend/
-??? BY.API/                  # Web API Project
-?   ??? Controllers/         # API Controllers
-?   ??? Middleware/          # Custom middleware
-?   ??? Program.cs          # Application entry point
-?   ??? appsettings.json    # Configuration
-??? BY.Core/                # Domain/Business Logic
-?   ??? Entities/           # Domain models
-?   ??? Interfaces/         # Service contracts
-?   ??? Services/           # Business logic
-?   ??? DTOs/              # Data transfer objects
-??? BY.Infrastructure/      # Data & External Services
-?   ??? Data/              # Entity Framework context
-?   ??? Repositories/      # Data access layer
-?   ??? Services/          # External service integrations
-?   ??? Migrations/        # Database migrations
-??? BY.Tests/              # Unit & Integration tests
+├── BY.API/                  # Web API Project
+│   ├── Controllers/         # API Controllers
+│   ├── Middleware/          # Custom middleware
+│   ├── Program.cs          # Application entry point
+│   └── appsettings.json    # Configuration
+├── BY.Core/                # Domain/Business Logic
+│   ├── Entities/           # Domain models
+│   ├── Interfaces/         # Service contracts
+│   ├── Services/           # Business logic
+│   └── DTOs/              # Data transfer objects
+├── BY.Infrastructure/      # Data & External Services
+│   ├── Data/              # Entity Framework context
+│   ├── Repositories/      # Data access layer
+│   ├── Services/          # External service integrations
+│   └── Migrations/        # Database migrations
+└── BY.Tests/              # Unit & Integration tests
 ```
 
 ### Core Technologies
@@ -91,7 +91,7 @@ UserPreferences: Id, UserId, NotificationSettings, DefaultStakeAmounts,
                  PreferredGoalTypes, CreatedAt, UpdatedAt
 ```
 
-## ?? Docker Configuration
+## 🐳 Docker Configuration
 
 ### Docker Compose Structure
 ```yaml
@@ -139,7 +139,7 @@ volumes:
   postgres_data:
 ```
 
-## ?? Mobile Architecture
+## 📱 Mobile Architecture
 
 ### Technology Options
 1. **React Native** (Recommended)
@@ -156,20 +156,20 @@ volumes:
 ### Mobile App Structure
 ```
 MobileApp/
-??? src/
-?   ??? components/        # Reusable UI components
-?   ??? screens/          # App screens
-?   ??? navigation/       # Navigation setup
-?   ??? services/         # API and data services
-?   ??? store/           # State management (Redux/Zustand)
-?   ??? utils/           # Helper functions
-?   ??? constants/       # App constants
-??? android/             # Android-specific code
-??? ios/                # iOS-specific code
-??? assets/             # Images, fonts, etc.
+├── src/
+│   ├── components/        # Reusable UI components
+│   ├── screens/          # App screens
+│   ├── navigation/       # Navigation setup
+│   ├── services/         # API and data services
+│   ├── store/           # State management (Redux/Zustand)
+│   ├── utils/           # Helper functions
+│   └── constants/       # App constants
+├── android/             # Android-specific code
+├── ios/                # iOS-specific code
+└── assets/             # Images, fonts, etc.
 ```
 
-## ?? Web Frontend (Admin & User Testing)
+## 🌐 Web Frontend (Admin & User Testing)
 
 ### Technology Stack
 - **React 18**: UI library
@@ -182,19 +182,19 @@ MobileApp/
 ### Frontend Structure
 ```
 Frontend/
-??? src/
-?   ??? components/       # Reusable components
-?   ??? pages/           # Page components
-?   ??? hooks/           # Custom React hooks
-?   ??? services/        # API services
-?   ??? store/           # Global state
-?   ??? types/           # TypeScript types
-?   ??? utils/           # Helper functions
-??? public/              # Static assets
-??? package.json         # Dependencies
+├── src/
+│   ├── components/       # Reusable components
+│   ├── pages/           # Page components
+│   ├── hooks/           # Custom React hooks
+│   ├── services/        # API services
+│   ├── store/           # Global state
+│   ├── types/           # TypeScript types
+│   └── utils/           # Helper functions
+├── public/              # Static assets
+└── package.json         # Dependencies
 ```
 
-## ?? Security Implementation
+## 🛡️ Security Implementation
 
 ### Authentication & Authorization
 - **JWT Tokens**: Access and refresh token strategy
@@ -214,7 +214,7 @@ Frontend/
 - **Webhook Verification**: Verify payment provider webhooks
 - **Audit Trail**: Log all financial transactions
 
-## ?? Monitoring & Observability
+## 📈 Monitoring & Observability
 
 ### Logging
 - **Structured Logging**: JSON-formatted logs with Serilog
@@ -231,7 +231,7 @@ Frontend/
 - **Error Reporting**: Integration with Sentry or similar
 - **Health Checks**: API health endpoints
 
-## ?? Deployment Strategy
+## 🚀 Deployment Strategy
 
 ### Development Environment
 - **Local Development**: Docker Compose
@@ -255,7 +255,7 @@ Frontend/
 5. Monitor deployment ? Rollback if issues
 ```
 
-## ?? API Design Principles
+## 📋 API Design Principles
 
 ### RESTful API Standards
 - **HTTP Methods**: GET, POST, PUT, DELETE
@@ -292,7 +292,7 @@ GET    /api/v1/community/feed
 POST   /api/v1/community/posts
 ```
 
-## ?? Scalability Considerations
+## 📈 Scalability Considerations
 
 ### Performance Optimization
 - **Caching**: Redis for frequently accessed data
