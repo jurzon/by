@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "BY - Bet on Yourself",
+    "slug": "by-accountability",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.byapp.accountability"
+    },
+    "android": {
+      "package": "com.byapp.accountability"
+    },
+    "web": {
+      "bundler": "webpack"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

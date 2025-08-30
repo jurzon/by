@@ -1,0 +1,2 @@
+<!-- Placeholder for favicon.png - this file should be replaced with an actual icon -->
+<!-- For now, we'll update the app.json to not require this file -->

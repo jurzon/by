@@ -1,6 +1,6 @@
 # BY - Behavioral Accountability App
 
-BY is a .NET 9.0 Web API backend with React frontend for behavioral accountability tracking. Users bet on themselves to achieve goals with monetary stakes.
+BY is a .NET 9.0 Web API backend with React Native + Expo (SDK 50) mobile app and React frontend for behavioral accountability tracking. Users bet on themselves to achieve goals with monetary stakes.
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
@@ -17,13 +17,16 @@ export PATH="$HOME/.dotnet:$PATH"
 # 2. Install frontend dependencies - 15 seconds. NEVER CANCEL.
 cd Frontend && npm install && cd ..
 
-# 3. Start Docker services (PostgreSQL + Redis) - 30 seconds. NEVER CANCEL.
+# 3. Install mobile app dependencies - 60 seconds. NEVER CANCEL.
+cd MobileApp && npm install --legacy-peer-deps && cd ..
+
+# 4. Start Docker services (PostgreSQL + Redis) - 30 seconds. NEVER CANCEL.
 docker compose up postgres redis -d
 
-# 4. Build backend - 25 seconds. NEVER CANCEL. Set timeout to 60+ minutes.
+# 5. Build backend - 25 seconds. NEVER CANCEL. Set timeout to 60+ minutes.
 cd Backend && dotnet build && cd ..
 
-# 5. Build frontend (optional validation) - 3 seconds. NEVER CANCEL.
+# 6. Build frontend (optional validation) - 3 seconds. NEVER CANCEL.
 cd Frontend && npm run build && cd ..
 ```
 
@@ -58,6 +61,24 @@ dotnet run --no-build
 
 # 3. Run Frontend (in new terminal)
 cd Frontend && npm run dev
+
+# 4. Run Mobile App (in new terminal) - Expo SDK 50
+cd MobileApp && npm run web
+```
+
+### Mobile App Development (React Native + Expo SDK 50)
+```bash
+# Primary development method
+cd MobileApp
+npm run web              # Web version (fastest for development)
+
+# Mobile testing
+npm run android          # Android emulator or Expo Go app
+npm run ios             # iOS simulator or Expo Go app (Mac only)
+npm start               # Start with QR code for device testing
+
+# Dependencies management
+npm install --legacy-peer-deps  # Install with legacy peer deps for compatibility
 ```
 
 ### Testing
@@ -67,6 +88,9 @@ cd Backend && dotnet test --no-build
 
 # Integration tests via Docker
 Scripts/dev.sh test
+
+# Mobile app type checking
+cd MobileApp && npm run type-check
 ```
 
 ## Validation Scenarios
@@ -90,7 +114,13 @@ After making changes, ALWAYS test these scenarios:
    ```
    Note: Frontend dev server must be running first.
 
-4. **User Authentication Flow**
+4. **Mobile App Loading (Primary)**
+   ```bash
+   curl http://localhost:19006/  # Should return Expo web app
+   ```
+   Note: Mobile app dev server must be running first.
+
+5. **User Authentication Flow**
    - Test users are seeded automatically:
    - Admin: admin@byapp.com / Admin123!
    - Test: test@example.com / Test123!
@@ -100,11 +130,13 @@ After making changes, ALWAYS test these scenarios:
 ### NEVER CANCEL Commands with Timeouts
 Based on validated measurements:
 - **Backend build**: 7-25 seconds normally, use 60+ minute timeout
-- **Frontend npm install**: 6-15 seconds normally, use 30+ minute timeout  
+- **Frontend npm install**: 6-15 seconds normally, use 30+ minute timeout
+- **Mobile app npm install**: 30-90 seconds normally, use 30+ minute timeout (--legacy-peer-deps required)
 - **Docker environment startup**: 30 seconds-5 minutes normally, use 10+ minute timeout
 - **Database migrations**: 5-10 seconds normally, use 30+ minute timeout
 - **Tests**: 3 seconds normally, use 30+ minute timeout
 - **Frontend dev server**: 200-300ms startup, use 30+ second timeout
+- **Mobile app dev server**: 5-15 seconds startup, use 60+ second timeout
 
 ### Docker Issues and Workarounds
 - **SSL Certificate Issues**: If Docker build fails with NuGet SSL errors, use local .NET build instead
@@ -120,7 +152,16 @@ Based on validated measurements:
 - **Testing**: xUnit with FluentAssertions
 - **Authentication**: JWT Bearer tokens
 
-### Frontend (React + TypeScript)
+### Mobile App (React Native + Expo SDK 50)
+- **Runtime**: Node.js 18+
+- **Framework**: React Native 0.73.6 with Expo SDK 50
+- **TypeScript**: Full TypeScript support
+- **Navigation**: React Navigation 6.x
+- **State Management**: Zustand
+- **Storage**: Expo SecureStore (native) / AsyncStorage (web)
+- **Dependencies**: Install with --legacy-peer-deps flag
+
+### Legacy Frontend (React + TypeScript)
 - **Runtime**: Node.js 20+
 - **Build Tool**: Vite 4.x
 - **UI Framework**: React 18 with TypeScript
@@ -144,7 +185,18 @@ Backend/
 ├── BY.Tests/         # Unit and integration tests
 └── BY.sln           # Solution file
 
-Frontend/
+MobileApp/            # React Native + Expo SDK 50 (Primary User App)
+├── src/
+│   ├── screens/      # Mobile screens (Login, Dashboard, CheckIn)
+│   ├── services/     # API integration services
+│   ├── store/        # State management (Zustand)
+│   ├── components/   # UI components
+│   ├── constants/    # Configuration & theming
+│   └── types/        # TypeScript definitions
+├── package.json      # Expo SDK 50 dependencies
+└── app.json         # Expo configuration
+
+Frontend/             # Legacy React Web (Admin Panel)
 ├── src/             # React application source
 ├── package.json     # Node.js dependencies
 ├── vite.config.ts   # Vite build configuration
@@ -176,6 +228,14 @@ Scripts/dev.sh clean     # Clean environment (removes data!)
 - **NuGet SSL errors in Docker**: Use local .NET build instead of Docker build
 - **Missing frontend config files**: Files created automatically during setup (tsconfig.json, vite.config.ts, etc.)
 - **Frontend TypeScript errors**: Build may fail with 7 TypeScript errors related to unused imports and missing types. This is expected in the current codebase state and does not prevent the development server from running with `npm run dev`
+- **Mobile app peer dependency errors**: Always use `npm install --legacy-peer-deps` for MobileApp
+
+### Mobile App Issues
+- **Expo Go compatibility**: Currently using SDK 50, upgrade to SDK 53 recommended for latest Expo Go
+- **Peer dependency conflicts**: Use --legacy-peer-deps flag for React Native ecosystem
+- **Platform-specific issues**: Test on web first (npm run web), then mobile devices
+- **Asset loading**: Ensure all required assets are in assets/ folder
+- **Emoji display**: Use UTF-8 encoding and avoid complex unicode characters
 
 ### Database Issues
 - **Connection failures**: Ensure Docker PostgreSQL is running on port 5433
@@ -183,7 +243,8 @@ Scripts/dev.sh clean     # Clean environment (removes data!)
 
 ### Port Conflicts
 - API: Default 5185 (local) or 5186 (Docker)
-- Frontend: 3000
+- Legacy Frontend: 3000
+- Mobile App (Web): 19006
 - PostgreSQL: 5433 (not standard 5432)
 - Redis: 6380 (not standard 6379)
 - pgAdmin: 8082 (not standard 8080)
@@ -201,6 +262,7 @@ Test User:  test@example.com / Test123!
 API:         http://localhost:5186
 API Docs:    http://localhost:5186/swagger
 Frontend:    http://localhost:3000
+Mobile App:  http://localhost:19006
 pgAdmin:     http://localhost:8082
 PostgreSQL:  localhost:5433
 Redis:       localhost:6380
@@ -221,6 +283,7 @@ Always run before committing changes:
 2. Backend tests: `cd Backend && dotnet test --no-build` 
 3. Frontend build: `cd Frontend && npm run build`
 4. Frontend linting: `cd Frontend && npm run lint`
-5. Manual validation scenarios (see above)
+5. Mobile app type check: `cd MobileApp && npm run type-check`
+6. Manual validation scenarios (see above)
 
-The application focuses on behavioral accountability where users create goals with monetary stakes. Core features include goal tracking, check-ins, payment processing via Stripe, and community features for accountability partnerships.
+The application focuses on behavioral accountability where users create goals with monetary stakes. Core features include goal tracking, check-ins, payment processing via Stripe, and community features for accountability partnerships. The mobile-first approach uses React Native + Expo SDK 50 for cross-platform compatibility.
